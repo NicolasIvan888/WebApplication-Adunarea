@@ -1,0 +1,107 @@
+﻿@page
+@model WebApplication_Adunarea.Pages.IndexModel
+@{
+    ViewData["Title"] = "Exersare Adunare Rapida";
+}
+
+<div class="text-center">
+    <h1 class="display-4 mb-4">Exersare Adunare Rapida</h1>
+
+    <div id="display-container" style="min-height: 100px;">
+        <span id="cifra-curenta" style="font-size: 5em; font-weight: bold; color: #007bff;">
+            Start
+        </span>
+    </div>
+
+    <div id="rezultat-container" class="mt-5" style="display: none;">
+        <p style="font-size: 1.2em;">Apăsați tasta **SPACE** pentru a vedea suma!</p>
+        <h2 id="suma-totala"></h2>
+        <p id="secventa-afisata" class="mt-3"></p>
+
+        <button id="restart-button" class="btn btn-success" onclick="location.reload();" style="display: none;">
+            Începe o sesiune nouă
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                // Variabile globale pentru joc
+        let secventaCifre = []; // Lista unde salvăm cifrele
+        let numarMaxim = 10;
+        let contorCifre = 0;
+        let intervalID;
+        let jocActiv = true;
+
+        // Elemente DOM
+        const cifraDisplay = document.getElementById('cifra-curenta');
+        const rezultatContainer = document.getElementById('rezultat-container');
+        const sumaDisplay = document.getElementById('suma-totala');
+        const secventaDisplay = document.getElementById('secventa-afisata');
+        const restartButton = document.getElementById('restart-button');
+
+        // Funcție pentru a genera o cifră aleatorie (1-9)
+        function genereazaCifra() {
+            // Math.random() returnează între 0 (inclusiv) și 1 (exclusiv)
+            // Înmulțim cu 9 și adunăm 1 pentru a obține între 1 și 9
+            return Math.floor(Math.random() * 9) + 1;
+        }
+
+        // Funcție care se execută la fiecare secundă
+        function schimbaCifra() {
+            if (contorCifre < numarMaxim) {
+                // 1. Generează și salvează
+                const cifraNoua = genereazaCifra();
+                secventaCifre.push(cifraNoua);
+
+                // 2. Afișează pe ecran
+                cifraDisplay.textContent = cifraNoua;
+
+                contorCifre++;
+            } else {
+                // 3. Oprește jocul și intervalul
+                clearInterval(intervalID);
+                jocActiv = false;
+                cifraDisplay.textContent = "STOP";
+                cifraDisplay.style.color = 'red';
+                rezultatContainer.style.display = 'block'; // Arată instrucțiunea
+            }
+        }
+
+        // 4. Start Joc: rulează funcția schimbaCifra la fiecare 1000ms (1 secundă)
+        function startJoc() {
+            // Pornim intervalul după 1 secundă pentru a afișa "Start" inițial
+            intervalID = setInterval(schimbaCifra, 1000);
+        }
+
+        // 5. Calculează și Afișează Rezultatul
+        function afiseazaRezultat() {
+            if (!jocActiv && rezultatContainer.style.display !== 'none') {
+                // Calculează suma totală folosind metoda reduce
+                const suma = secventaCifre.reduce((total, cifra) => total + cifra, 0);
+
+                // Afișează rezultatele
+                sumaDisplay.textContent = `Suma cifrelor este: ${suma}`;
+                secventaDisplay.textContent = `Secvența a fost: ${secventaCifre.join(' + ')}`;
+                restartButton.style.display = 'inline-block';
+
+                // Ascunde mesajul inițial de "Apăsați SPACE"
+                rezultatContainer.querySelector('p').style.display = 'none';
+            }
+        }
+
+        // 6. Ascultă apăsarea tastei (Keydown Event Listener)
+        document.addEventListener('keydown', (event) => {
+            // Verifică dacă tasta apăsată este tasta SPACE (codul 32)
+            if (event.code === 'Space') {
+                event.preventDefault(); // Oprește scroll-ul paginii la Space
+                if (!jocActiv && contorCifre === numarMaxim) {
+                    afiseazaRezultat();
+                }
+            }
+        });
+
+        // Pornim jocul când pagina s-a încărcat
+        document.addEventListener('DOMContentLoaded', startJoc);
+    </script>
+}
