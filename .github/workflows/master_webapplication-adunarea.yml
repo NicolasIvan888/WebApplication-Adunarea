@@ -21,7 +21,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 'dotnet10.x'
+          dotnet-version: '10.0.x'
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -62,4 +62,3 @@ jobs:
           app-name: 'WebApplication-Adunarea'
           slot-name: 'Production'
           package: .
-          
